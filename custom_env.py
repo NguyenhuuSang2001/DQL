@@ -23,10 +23,10 @@ class IoTCommunicationEnv(gym.Env):
 
         # print(self.action_space)
 
-        self.observation_space = gym.spaces.Tuple([
-            gym.spaces.Tuple([gym.spaces.Box(low=0, high=1, shape=(1,)) for _ in range(num_user)]),  # Channel gains
-            gym.spaces.Discrete(num_user)  # Gamma_i parameter
-        ])
+        # self.observation_space = gym.spaces.Tuple([
+        #     gym.spaces.Tuple([gym.spaces.Box(low=0, high=1, shape=(1,)) for _ in range(num_user)]),  # Channel gains
+        #     gym.spaces.Discrete(num_user)  # Gamma_i parameter
+        # ])
         
         self.state = None  # Current state of the environment
     
@@ -51,7 +51,7 @@ class IoTCommunicationEnv(gym.Env):
     def step(self, action):
         self.count = self.count + 1
         done = False
-        if self.count > 400:
+        if self.count > 200:
             done = True
             self.count = 0
 
@@ -68,8 +68,8 @@ class IoTCommunicationEnv(gym.Env):
         reward = self._calculate_reward(action)
         
         # Simulate state transition
-        new_channel_gains = [np.random.normal(0, 1) for _ in range(self.num_user)]
-        gamma_i = self.state[-1]
+        new_channel_gains = [np.random.normal(0.5, 0.5) for _ in range(self.num_user)]
+        gamma_i =  np.random.choice([4, 6, 8])
         new_channel_gains.append(gamma_i)
         self.state = new_channel_gains
         
@@ -116,7 +116,7 @@ class IoTCommunicationEnv(gym.Env):
         channel_allocation = action[:self.num_user ]
         power_levels = action[self.num_user:]
 
-        print("action_index: ", action_index, "->", action)
+        # print("action_index: ", action_index, "->", action)
 
         reward = 0
 
@@ -128,7 +128,7 @@ class IoTCommunicationEnv(gym.Env):
             elif i != 0 :
                 channel_select_uniq.append(i)
         if check_channael < 0:
-            reward += check_channael * 2
+            reward += check_channael * 20
 
         
         check_power = 0
@@ -136,10 +136,10 @@ class IoTCommunicationEnv(gym.Env):
             if i != 0 and power_levels[i - 1]==0 :
                 check_power = check_power - 1
         if check_power < 0:
-            reward += check_power * 1
+            reward += check_power * 10
 
         if check_channael < 0 or check_power < 0:
-            print("reward: ", reward)
+            # print("reward: ", reward)
             return reward
         
 
