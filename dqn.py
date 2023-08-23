@@ -7,7 +7,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 
-import custom_env
+from custom_env import *
 
 EPISODES = 1000
 
@@ -70,10 +70,11 @@ if __name__ == "__main__":
 
     # Example usage
     num_user = 4
-    max_power = 3
+    number_power = 3
+    max_power = 0.0316227766
     max_channel = 3
 
-    env = custom_env.IoTCommunicationEnv(num_user, max_power, max_channel)
+    env = IoTCommunicationEnv(num_user, number_power, max_power, max_channel)
     state_size = env.get_state_size()
     print("state_size", state_size)
     action_size = env.get_action_size()
