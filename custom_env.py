@@ -3,18 +3,19 @@ import gym
 import random
 
 class IoTCommunicationEnv(gym.Env):
-    def __init__(self, num_user, max_power, max_channel, C_i):
+    def __init__(self, num_user, number_power, max_power, max_channel, W_U=10**6):
         super(IoTCommunicationEnv, self).__init__()
         self.num_user = num_user
+        self.number_power = number_power
         self.max_power = max_power
         self.max_channel = max_channel
-        self.C_i = C_i
+        self.W_U = W_U
         self.count = 0
         
         # Define action and observation spaces
         # Định nghĩa các subspace cho action_space
         channel_space = gym.spaces.MultiDiscrete([max_channel + 1]*num_user)  # mỗi user chọn 1 channel 
-        power_space = gym.spaces.MultiDiscrete([max_power + 1] * num_user)  # mỗi p_i chọn giá trị từ 0 đến max_power
+        power_space = gym.spaces.MultiDiscrete([number_power + 1] * num_user)  # mỗi p_i chọn giá trị từ 0 đến max_power
 
         # action_space tổng cộng sẽ bao gồm subspace của light_on_off_space và light_power_space
         self.action_space = gym.spaces.Tuple([channel_space, power_space])
@@ -31,7 +32,7 @@ class IoTCommunicationEnv(gym.Env):
     
     def get_action_size(self):
         # Tính action_size
-        self.action_size = ((self.max_channel + 1) ** self.num_user)*( (self.max_power + 1)**self.num_user)
+        self.action_size = ((self.max_channel + 1) ** self.num_user)*( (self.number_power + 1)**self.num_user)
 
         return self.action_size
         
@@ -81,7 +82,7 @@ class IoTCommunicationEnv(gym.Env):
 
         
         channel_allocation = self.convert_base(num_channels, self.max_channel + 1)
-        power_allocation = self.convert_base(num_powers, self.max_power + 1)
+        power_allocation = self.convert_base(num_powers, self.number_power + 1)
         
         return np.array(channel_allocation + power_allocation)
 
@@ -146,13 +147,13 @@ class IoTCommunicationEnv(gym.Env):
             channel_index = channel_allocation[k]
             if channel_index == 0:
                 continue
-            W_U = self.C_i[int(channel_index - 1)]
+            W_U = self.W_U
             channel_gain = self.state[k]
             d_k = 20 # Khoang cach
             interference = self.state[-1]  # Gamma_i parameter
-            noise_variance = 1.0  # Adjust this based on your scenario
+            noise_variance = 10**(-17)  # Adjust this based on your scenario
             
-            data_rate = power_levels[int(channel_index - 1)] * channel_gain * d_k**(-2)/ (interference + W_U * noise_variance)
+            data_rate = 1.0 * power_levels[int(channel_index - 1)] / self.number_power * self.max_power * channel_gain * d_k**(-2)/ (interference + W_U * noise_variance)
             reward += W_U * np.log2(1 + data_rate)
 
         return reward
@@ -160,12 +161,12 @@ class IoTCommunicationEnv(gym.Env):
 if __name__ == "__main__":
 
     # Example usage
-    num_user = 5
-    max_power = 3
+    num_user = 4
+    number_power = 3
+    max_power = 0.0316227766
     max_channel = 4
-    C_i = [1, 4, 6, 4]
 
-    env = IoTCommunicationEnv(num_user, max_power, max_channel, C_i)
+    env = IoTCommunicationEnv(num_user, number_power, max_power, max_channel)
 
     # Reset the environment
     initial_state = env.reset()
