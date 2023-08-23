@@ -52,6 +52,7 @@ class DQNAgent:
             target_f = self.model.predict(state)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
+    def update_eps(self):
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -105,5 +106,8 @@ if __name__ == "__main__":
                 break
             if len(agent.memory) > batch_size:
                 agent.replay(batch_size)
+                
+        agent.update_eps()
+
         if e % 10 == 0:
             agent.save("./save/cartpole-dqn.h5")
