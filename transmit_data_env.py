@@ -2,13 +2,14 @@ import numpy as np
 import random
 
 class IoTCommunicationEnv():
-    def __init__(self, num_user, number_power, max_power, max_channel, W_U=10**6):
+    def __init__(self, num_user, number_power, max_power, max_channel, W_U=10**6, max_step=500):
         self.num_user = num_user
         self.number_power = number_power
         self.max_power = max_power
         self.max_channel = max_channel
         self.W_U = W_U
-        self.count = 0
+        self.max_step = max_step
+        self.count_step = 0
         self.action_space_n = self.get_action_space()
         self.state = None 
     
@@ -27,11 +28,11 @@ class IoTCommunicationEnv():
         return self.state
 
     def step(self, action):
-        self.count = self.count + 1
+        self.count_step = self.count_step + 1
         done = False
-        if self.count > 200:
+        if self.count_step > self.max_step:
             done = True
-            self.count = 0
+            self.count_step = 0
         
         # Simulate the communication process and calculate reward
         reward = self._calculate_reward(action)

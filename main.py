@@ -7,7 +7,10 @@ if __name__ == "__main__":
 
     activate_GPU()
 
-    EPISODES = 1000
+    args = parse_args()
+
+    EPISODES = args.episode
+    max_step = args.max_step
 
     # Example usage
     num_user = 4
@@ -15,7 +18,7 @@ if __name__ == "__main__":
     max_power = 0.0316227766
     max_channel = 3
 
-    env = IoTCommunicationEnv(num_user, number_power, max_power, max_channel)
+    env = IoTCommunicationEnv(num_user, number_power, max_power, max_channel, max_step=max_step)
     state_size = env.get_state_size()
     print("state_size", state_size)
     action_space_n = env.get_action_space()
